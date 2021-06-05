@@ -1,20 +1,20 @@
-import styled from 'styled-components';
+import styled, { css } from 'styled-components';
 
 interface NavItemState {
   active: boolean;
   disabled?: boolean;
 }
 
-const activeStyle = `
+const activeStyle = css`
   border-left: 2px solid #1890ff;
-  background-color: rgba(255, 255, 255, 0.05);
+  background-color: ${(props) => props.theme.background.active};
   color: #fff;
 `;
 
-const activeHover = `
+const activeHover = css`
   &:hover {
     color: #fff;
-    background-color: rgba(255, 255, 255, 0.05);
+    background-color: ${(props) => props.theme.background.active};
   }
 `;
 

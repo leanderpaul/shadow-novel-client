@@ -7,7 +7,7 @@ import { Link } from 'react-router-dom';
 /**
  * Importing npm design components.
  */
-import { Col, Card, Typography, Button } from 'antd';
+import { Col, Card, Typography, Button, Tooltip } from 'antd';
 
 /**
  * Importing user defined components.
@@ -22,7 +22,7 @@ import { convertGenre } from '../../utils/lib';
 /**
  * Importing styled components.
  */
-import { CardSkeleton } from './styles';
+import { CardSkeleton, NovelTitle } from './styles';
 
 /**
  * Importing types.
@@ -43,31 +43,35 @@ type HorizontalNovelCardProps = LoadingCard | NovelCard;
 
 function HorizontalNovelCard(props: HorizontalNovelCardProps) {
   const { loading, novel } = props;
+  const prefixURL = window.location.pathname.includes('workspace') ? 'workspace' : 'novel';
+  const novelURL = `/${prefixURL}/${novel?.nid || ''}`;
 
   return (
     <Col span={12}>
-      <Link to={`/novel/${novel?.nid || '#'}`}>
-        <Card hoverable bodyStyle={{ padding: 0, display: 'flex', overflow: 'hidden' }}>
+      <Card bodyStyle={{ padding: 0, display: 'flex', overflow: 'hidden' }}>
+        <Link to={novelURL}>
           <NovelCover style={{ flexShrink: 0 }} loading={loading} size='sm' className='mr-3' image={novel?.cover} alt={novel?.title} />
-          {props.loading ? (
-            <CardSkeleton active={true} paragraph={{ rows: 4 }} />
-          ) : (
-            <div className='text-justify overflow-hidden'>
-              <Typography.Title className='w-100' level={4} ellipsis>
+        </Link>
+        {props.loading ? (
+          <CardSkeleton active={true} paragraph={{ rows: 4 }} />
+        ) : (
+          <div className='text-justify overflow-hidden py-2 novel-desc'>
+            <Link to={novelURL}>
+              <NovelTitle level={4} ellipsis>
                 {novel?.title}
-              </Typography.Title>
-              <Link to={`/novel?genre=${novel?.genre}`}>
-                <Button type='primary' ghost shape='round' size='small'>
-                  {convertGenre(novel!.genre)}
-                </Button>
-              </Link>
-              <Typography.Paragraph className='my-1 pt-1 mr-3' ellipsis={{ rows: 5 }}>
-                {novel?.desc.map((block) => block.text).join('\n')}
-              </Typography.Paragraph>
-            </div>
-          )}
-        </Card>
-      </Link>
+              </NovelTitle>
+            </Link>
+            <Link to={`/novel?genre=${novel?.genre}`}>
+              <Button type='primary' ghost shape='round' size='small'>
+                {convertGenre(novel!.genre)}
+              </Button>
+            </Link>
+            <Typography.Paragraph className='my-1 pt-2 mr-3' ellipsis={{ rows: 4 }}>
+              {novel?.desc.map((block) => block.text)}
+            </Typography.Paragraph>
+          </div>
+        )}
+      </Card>
     </Col>
   );
 }

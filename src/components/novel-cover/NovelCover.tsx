@@ -39,6 +39,7 @@ interface INovelCoverProps {
   className?: string;
   style?: React.CSSProperties;
   preview?: boolean;
+  hoverable: boolean;
 }
 
 /**
@@ -69,10 +70,14 @@ function NovelCover(props: INovelCoverProps) {
   );
 
   return (
-    <Container style={style} className={props.className}>
+    <Container style={style} className={props.className} hoverable={props.hoverable}>
       <Image style={size} src={src} alt={alt} preview={preview} placeholder={placeholder} />
     </Container>
   );
 }
+
+NovelCover.defaultProps = {
+  hoverable: true
+};
 
 export default NovelCover;

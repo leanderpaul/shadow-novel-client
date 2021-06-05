@@ -8,6 +8,7 @@ export interface User {
   lastName?: string;
   password: string;
   library: string[];
+  webnovelCookie?: string;
 }
 
 export enum NovelStatus {
@@ -76,6 +77,11 @@ export interface NovelVolume {
   chapterCount: number;
 }
 
+export enum NovelOrigin {
+  TRANSLATED = 'TRANSLATED',
+  WEBNOVEL = 'WEBNOVEL'
+}
+
 export interface Novel {
   nid: string;
   cover?: string;
@@ -89,6 +95,9 @@ export interface Novel {
   views: number;
   chapterCount: number;
   createdAt: Date;
+  lastUpdated?: Date;
+  webnovelBookId?: string;
+  origin: NovelOrigin;
 }
 
 export interface NovelChapter {
@@ -122,11 +131,11 @@ export interface NovelURLParams {
   nid: string;
 }
 
-export interface NovelVolumeURLParams {
+export interface NovelVolumeURLParams extends NovelURLParams {
   vid: string;
 }
 
-export interface NovelChapterURLParams {
+export interface NovelChapterURLParams extends NovelURLParams {
   cid: string;
 }
 
@@ -162,9 +171,36 @@ export interface VerifySession {
 }
 
 /**
+ * Profile responses
+ */
+
+export interface GetProfile {
+  response: Omit<User, 'password' | 'library'>;
+}
+
+export interface UpdateProfile {
+  body: Partial<Omit<User, 'password' | 'library'>>;
+  response: Omit<User, 'password'>;
+}
+
+export interface UpdatePassword {
+  body: {
+    oldPassword: string;
+    newPassword: string;
+  };
+}
+
+export interface AddNovelToLibrary {
+  body: {
+    nid: string;
+  };
+  response: User['library'];
+}
+
+/**
  * Novel Response
  */
-export type NovelInput = Omit<Novel, 'nid' | 'createdAt' | 'uid' | 'volumes' | 'views' | 'chapterCount'>;
+export type NovelInput = Omit<Novel, 'nid' | 'createdAt' | 'uid' | 'volumes' | 'views' | 'chapterCount' | 'lastUpdated'>;
 
 export type NovelBrief = Pick<Novel, 'nid' | 'cover' | 'title' | 'genre' | 'desc' | 'status'>;
 
@@ -175,7 +211,7 @@ export interface CreateNovel {
   response: Novel;
 }
 
-export interface FindNovel {
+export interface ListNovel {
   query: {
     title?: string;
     uid?: string;
@@ -193,6 +229,15 @@ export interface FindNovel {
   };
 }
 
+export interface GetLatestUpdates {
+  response: {
+    items: (Pick<Novel, 'nid' | 'title' | 'genre'> & {
+      author: Pick<User, 'uid' | 'username'>;
+      chapter: Pick<NovelChapter, 'cid' | 'index' | 'title' | 'createdAt'>;
+    })[];
+  };
+}
+
 export interface GetNovel {
   url: NovelURLParams;
   response: Novel & { chapters: Pick<NovelChapter, 'cid' | 'index' | 'title' | 'createdAt'>[]; author: string };
@@ -202,6 +247,15 @@ export interface UpdateNovel {
   url: NovelURLParams;
   body: NovelInput;
   response: Novel;
+}
+
+export interface GetLatestUpdates {
+  response: {
+    items: (Pick<Novel, 'nid' | 'title' | 'genre'> & {
+      author: Pick<User, 'uid' | 'username'>;
+      chapter: Pick<NovelChapter, 'cid' | 'index' | 'title' | 'createdAt'>;
+    })[];
+  };
 }
 
 /**
@@ -274,4 +328,39 @@ export interface UpdateChapter {
 
 export interface DeleteChapter {
   url: NovelChapterURLParams;
+}
+
+/**
+ * Scraper responses
+ */
+export interface ScraperMetadata {
+  nid: string;
+  chapterCount: number;
+  totalChapters: number;
+  status: ScraperTaskStatus;
+}
+
+export interface NovelURLParams {
+  nid: string;
+}
+
+export interface ScrapeNovel {
+  url: NovelURLParams;
+  body: {
+    startURL: string;
+  };
+  response: ScraperMetadata;
+}
+
+export interface ScraperTaskStatus {
+  url: NovelURLParams;
+  response: ScraperMetadata | null;
+}
+
+export interface UpdateScraperTask {
+  url: NovelURLParams;
+  body: {
+    op: 'stop';
+  };
+  response: ScraperMetadata | null;
 }

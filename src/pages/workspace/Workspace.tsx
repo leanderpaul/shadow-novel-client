@@ -3,7 +3,7 @@
  */
 import React, { useContext } from 'react';
 import { Link } from 'react-router-dom';
-import { useInfiniteQuery } from 'react-query';
+import { useQuery } from 'react-query';
 
 /**
  * Importing npm design components.
@@ -14,7 +14,7 @@ import { PlusOutlined } from '@ant-design/icons';
 /**
  * Importing user defined components.
  */
-import NovelList from '../../containers/novel-list/NovelList';
+import NovelList from '../../components/novel-list/NovelList';
 
 /**
  *  Importing user defined modules.
@@ -30,7 +30,7 @@ import { AuthContext } from '../../utils/store';
  * Importing types.
  */
 const createNovel = (
-  <Link to='/novel/new-novel'>
+  <Link to='/workspace/new-novel'>
     <Button type='primary' size='large' icon={<PlusOutlined />}>
       Create Novel
     </Button>
@@ -39,9 +39,9 @@ const createNovel = (
 
 function Workspace() {
   const [auth] = useContext(AuthContext);
-  const { data, isLoading } = useInfiniteQuery('workspace-novels', (context) => NovelAPI.list(context, auth.user?.uid), { enabled: true, getNextPageParam: console.log });
+  const { data, isLoading } = useQuery('workspace-novels', () => NovelAPI.list({ uid: auth.user?.uid }));
 
-  const novels = data?.pages[0].items || [];
+  const novels = data?.items || [];
   const title = <Typography.Title level={2}>Workspace</Typography.Title>;
 
   return (

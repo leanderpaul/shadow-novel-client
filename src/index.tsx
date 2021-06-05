@@ -7,7 +7,7 @@ import ReactDOM from 'react-dom';
 /**
  * Importing user defined components.
  */
-import App from './components/app/App';
+import App from './containers/app/App';
 
 /**
  * Importing global css.

@@ -25,8 +25,14 @@ export const NavItemList = styled.ul`
 `;
 
 export const Toggle = styled(MenuOutlined)<NavState>`
-  color: #fff;
+  color: #fff !important;
   font-size: 18px;
   transform: rotateZ(${(props) => (props.open ? 0 : -90)}deg);
   transition: all 350ms cubic-bezier(0.6, 0.05, 0.28, 0.91);
+`;
+
+export const Divider = styled.div`
+  margin: 10px auto;
+  width: 85%;
+  border: 0.5px solid #555;
 `;

@@ -2,11 +2,12 @@
  * Importing npm packages.
  */
 import React from 'react';
+import { Link } from 'react-router-dom';
 
 /**
  * Importing npm design components.
  */
-import { Form, Card, Typography, Row, Col, Input, Select, Button } from 'antd';
+import { Form, Card, Typography, Row, Col, Input, Button } from 'antd';
 import SunEditor from 'suneditor-react';
 import 'suneditor/dist/css/suneditor.min.css';
 
@@ -14,17 +15,17 @@ import 'suneditor/dist/css/suneditor.min.css';
  * Importing user defined components.
  */
 import NovelCover from '../../components/novel-cover/NovelCover';
+import Selector from '../../components/selectors';
 
 /**
  *  Importing user defined modules.
  */
 import { suneditorOptions, useNovelForm } from './utils';
-import { Genres, Tags, NovelStatus } from '../../typescript/api';
-import { convertGenre, convertTag } from '../../utils/lib';
 
 /**
  * Importing styled components.
  */
+import { Container } from './styles';
 
 /**
  * Importing types.
@@ -33,52 +34,66 @@ import { convertGenre, convertTag } from '../../utils/lib';
 /**
  * Constants.
  */
-const genreOptions = Object.keys(Genres).map((genre) => <Select.Option value={genre}>{convertGenre(genre)}</Select.Option>);
-const tagOptions = Object.keys(Tags).map((tag) => <Select.Option value={tag}>{convertTag(tag)}</Select.Option>);
 
 function NovelForm() {
-  const { isLoading, isMutating, handleSubmit, handleCoverChange, form, editorRef, novelCover } = useNovelForm();
+  const { isLoading, isMutating, handleSubmit, handleCoverChange, form, novelCover, novelDesc, setNovelDesc, submitText, history, nid } = useNovelForm();
 
   const title = <Typography.Title level={3}>Novel Information</Typography.Title>;
+  const cancelLink = submitText === 'Create' ? '/workspace' : `/workspace/${nid}`;
 
   return (
-    <div className='my-5 mx-5'>
+    <Container>
       <Card title={title} loading={isLoading}>
-        <Row className='px-2'>
-          <Col span={18} className='pr-4'>
-            <Form form={form} labelCol={{ span: 4 }} wrapperCol={{ span: 20 }} size='large' labelAlign='left' requiredMark={false}>
-              <Form.Item name='title' label='Title' hasFeedback rules={[{ required: true, message: 'Please enter a novel title !' }]}>
+        <Form form={form} size='large' labelAlign='left' requiredMark={false}>
+          <Row gutter={[20, 25]} className='px-2'>
+            <Col span={18} className='pr-4 form-items'>
+              <Form.Item label='Title' name='title' hasFeedback rules={[{ required: true, message: 'Please enter a title !' }]}>
                 <Input />
               </Form.Item>
-              <Form.Item label='Genre' name='genre' hasFeedback rules={[{ required: true, message: 'Please select a genre !' }]}>
-                <Select>{genreOptions}</Select>
+              {submitText === 'Create' && (
+                <Form.Item label='Type' name='type' hasFeedback rules={[{ required: true, message: 'Please select an type !' }]}>
+                  <Selector.NovelType />
+                </Form.Item>
+              )}
+              <Form.Item label='Origin' name='origin' hasFeedback rules={[{ required: true, message: 'Please select an origin !' }]}>
+                <Selector.NovelOrigin />
               </Form.Item>
-              <Form.Item label='Tags' name='tags' hasFeedback rules={[{ required: true, message: 'Please select a tags !' }]}>
-                <Select mode='multiple'>{tagOptions}</Select>
+              <Form.Item label='Genre' name='genre' hasFeedback rules={[{ required: true, message: 'Please select a genre !' }]}>
+                <Selector.Genre />
               </Form.Item>
               <Form.Item label='Status' name='status' hasFeedback rules={[{ required: true, message: 'Please select a status !' }]}>
-                <Select>
-                  <Select.Option value={NovelStatus.ONGOING}>Ongoing</Select.Option>
-                  <Select.Option value={NovelStatus.COMPLETED}>Completed</Select.Option>
-                </Select>
+                <Selector.NovelStatus />
               </Form.Item>
-            </Form>
-            <SunEditor ref={editorRef} lang='en' height='185' setOptions={suneditorOptions} placeholder='Novel description' />
-          </Col>
-          <Col span={6}>
-            <input type='file' id='novel-cover' hidden onChange={handleCoverChange} />
-            <label htmlFor='novel-cover' className='pointer'>
-              <NovelCover image={novelCover} size='full' />
-            </label>
-          </Col>
-        </Row>
+              <Form.Item name='webnovelBookId' label='Webnovel Book ID' hasFeedback>
+                <Input />
+              </Form.Item>
+              <Form.Item label='Tags' name='tags' hasFeedback rules={[{ required: true, message: 'Please select a tags !' }]}>
+                <Selector.Tag />
+              </Form.Item>
+            </Col>
+            <Col span={6}>
+              <input type='file' id='novel-cover' hidden onChange={handleCoverChange} />
+              <label htmlFor='novel-cover' className='pointer'>
+                <NovelCover image={novelCover} size='full' hoverable={false} />
+              </label>
+            </Col>
+            <Col span={24}>
+              <Form.Item label='Synopsis' style={{ marginBottom: 0 }}>
+                <SunEditor lang='en' setOptions={suneditorOptions} height='250' setContents={novelDesc} onChange={setNovelDesc} />
+              </Form.Item>
+            </Col>
+          </Row>
+        </Form>
         <div className='text-right pr-2 mt-4'>
+          <Button className='mr-4' size='large' danger style={{ width: 200 }} onClick={() => history.push(cancelLink)}>
+            Cancel
+          </Button>
           <Button loading={isMutating} style={{ width: 200 }} size='large' type='primary' onClick={handleSubmit}>
-            Create
+            {submitText}
           </Button>
         </div>
       </Card>
-    </div>
+    </Container>
   );
 }
 

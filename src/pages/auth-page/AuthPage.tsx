@@ -1,9 +1,7 @@
 /**
  * Importing components from npm packages.
  */
-import React, { useState, useContext, useEffect } from 'react';
-import { Redirect, useLocation } from 'react-router-dom';
-import { useMutation } from 'react-query';
+import React, { useState } from 'react';
 
 /**
  * Importing npm design components.
@@ -19,8 +17,6 @@ import Register from './Register';
 /**
  *  Importing user defined modules.
  */
-import { AuthContext, authToken } from '../../utils/store';
-import { AuthAPI } from '../../utils/api';
 
 /**
  * Importing styled components.
@@ -31,11 +27,16 @@ import { AuthCard, Container } from './styles';
  * Importing types.
  */
 import { CardTabListType } from 'antd/lib/card';
-import type { ErrorResponse } from '../../typescript/api';
-import type { Auth } from '../../utils/store';
 
 type ITab = 'login' | 'register';
 
+interface AuthPageProps {
+  loading?: boolean;
+}
+
+/**
+ * Constants.
+ */
 const tabs: CardTabListType[] = [
   {
     key: 'login',
@@ -55,21 +56,12 @@ const tabs: CardTabListType[] = [
   }
 ];
 
-function AuthPage() {
+function AuthPage(props: AuthPageProps) {
   const [tab, setTab] = useState<ITab>('login');
-  const { state } = useLocation();
-  const [auth, setAuth] = useContext(AuthContext);
-  const { isLoading, mutate } = useMutation(AuthAPI.verifySession, { onSuccess: setAuth, onError: () => setAuth() });
 
-  useEffect(() => {
-    if (authToken) mutate();
-  }, []);
-
-  return auth.isAuthenticated ? (
-    <Redirect to={(state as any)?.from || '/'} />
-  ) : (
+  return (
     <Container>
-      <AuthCard loading={isLoading} tabList={tabs} activeTabKey={tab} onTabChange={(key) => setTab(key as ITab)} tabProps={{ centered: true }}>
+      <AuthCard loading={props.loading} tabList={tabs} activeTabKey={tab} onTabChange={(key) => setTab(key as ITab)} tabProps={{ centered: true }}>
         {tab === 'login' ? <Login /> : <Register />}
       </AuthCard>
     </Container>

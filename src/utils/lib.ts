@@ -17,18 +17,19 @@ import type { EditorContent } from '../typescript/api';
  * Declaring the constants.
  */
 
-export function convertHTMLToDesc(html?: string) {
+export function convertEditorContentToHTML(desc: EditorContent[]) {
+  return desc.map((para) => `<${para.tag}>${para.text}</${para.tag}>`).join('\n');
+}
+
+export function convertHTMLToEditorContent(html?: string) {
   const content: EditorContent[] = [];
   if (!html) return content;
   const $ = cheerio.load(`<div id='html-content'>${html}</div>`);
   const children = $('#html-content').children();
-  // children.each((_index, element) => content.push({ tag: element.name as EditorContent['tag'], text: $(element.children[0]).text() }));
   children.each((_index, element) => {
     const tag = element.name as EditorContent['tag'];
     element.children.forEach((child) => ($(child).text() ? content.push({ tag, text: $(child).text() }) : null));
   });
-  // children.each((_index, element) => console.log(element));
-  // children.each((_index, element) => console.log(element, $(element.children[1]).text()));
   return content.filter((block) => block.text);
 }
 
@@ -52,4 +53,9 @@ export function convertTag(tag: Tags | string) {
     .split('_')
     .map((word) => word.charAt(0) + word.slice(1).toLowerCase())
     .join(' ');
+}
+
+export function appendObjectToParams(params: URLSearchParams, obj: any) {
+  const keys = Object.keys(obj);
+  keys.forEach((key) => params.set(key, typeof obj[key] === 'string' ? obj[key] : obj[key].join(',')));
 }

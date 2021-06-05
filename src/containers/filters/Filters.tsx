@@ -22,7 +22,7 @@ import { capitalizeWord, convertGenre } from '../../utils/lib';
 /**
  * Importing styled components.
  */
-import { Container, FlatButton, SelectFilter } from './styles';
+import { Container, SelectFilter } from './styles';
 
 /**
  * Importing types.
@@ -50,7 +50,7 @@ function Filters() {
     return function (value: any) {
       if (value) query.set(filterField, value);
       else query.delete(filterField);
-      history.push(`/explore?${query.toString()}`);
+      history.push(`/novel?${query.toString()}`);
     };
   }
 
